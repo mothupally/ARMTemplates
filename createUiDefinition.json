@@ -1,0 +1,263 @@
+{
+  "handler": "Microsoft.Compute.MultiVm",
+  "version": "0.0.1-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "username",
+        "type": "Microsoft.Compute.UserNameTextBox",
+        "label": "Admin username",
+        "toolTip": "Username for the local and domain administrator account",
+        "osPlatform": "Windows",
+        "visible": true,
+        "constraints": {
+          "required": true
+        }
+      },
+      {
+        "name": "password",
+        "type": "Microsoft.Compute.CredentialsCombo",
+        "label": {
+          "password": "Admin Password",
+          "confirmPassword": "Confirm password"
+        },
+        "toolTip": {
+          "password": "Password for the local and domain administrator account"
+        },
+        "constraints": {
+          "required": true
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "osPlatform": "Windows",
+        "visible": true
+        }
+    ],
+    "steps": [
+      {
+        "name": "domainAndNetworkSettings",
+        "label": "Domain and network settings",
+        "subLabel": {
+          "preValidation": "Configure the domain and network",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Domain and network settings",
+        "elements": [
+          {
+            "name": "dnsNameLabelPrefixCombo",
+            "type": "Microsoft.Network.PublicIpAddressCombo",
+            "label": {
+              "publicIpAddress": "Public IP address name",
+              "domainNameLabel": "DNS name label"
+            },
+            "toolTip":  {
+              "publicIpAddress": "An Azure resource that will save the properties of the created public IP address and DNS name",
+              "domainNameLabel": "A unique prefix used to check out a DNS name from Azure, in the form of <DNS name label>.<location>.cloudapp.azure.com . This DNS name is how you will connect to the RDS deployment over the Internet. You do not need to own any existing public DNS name."
+            },
+            "defaultValue": {
+              "publicIpAddressName": "gwpip",
+              "domainNameLabel": ""
+            },
+            "constraints": {
+              "required": {
+               "domainNameLabel": true
+              }
+            },
+            "options": {
+              "hideNone": true,
+              "hideDomainNameLabel": false,
+              "hideExisting": true
+            },
+            "visible": true
+          },
+           {
+            "name": "adDomainName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "AD domain name",
+            "defaultValue": "contoso.com",
+            "toolTip":  "The name of the domain to be created on the private network, such as 'contoso.com'. You do not need to own any existing domain.",
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.{3,15}$)([a-z0-9]+\\.)?([a-z0-9][a-z0-9-]*\\.)+[a-z]{2,6}$",
+              "validationMessage": "The domain name must satisfy NETBIOS requirements, so the recommendation is for a short test domain name (under 15 characters) such as contoso.com . Otherwise, the domain name can be up to 63 characters, contain lowercase alphanumeric characters and hypens, and end with a top level domain (such as .com, .net). "
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "rdshandVMSettings",
+        "label": "RDSH and VM settings",
+        "subLabel": {
+          "preValidation": "Configure the RDSH and other VMs",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "RDSH and VM settings",
+        "elements": [
+          {
+            "name": "imageSKU",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Windows Server image SKU",
+            "defaultValue": "Windows Server 2016 Datacenter",
+            "toolTip": "The operating system disk image for the virtual machines in the deployment",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Windows Server 2012 R2 Datacenter",
+                  "value": "2012-R2-Datacenter"
+                },
+                {
+                  "label": "Windows Server 2016 Datacenter",
+                  "value": "2016-Datacenter"
+                }
+              ]
+            }
+          },
+          {
+            "name": "numberOfRDSHInstances",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Number of RDSH instances",
+            "defaultValue": "2",
+            "toolTip": "The number of RDSH instances for the deployment",
+            "constraints": {
+              "regex": "^[1-9][0-9]*$"
+            }
+          },
+          {
+            "name": "rdshVMSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "RDSH VM Size",
+            "toolTip": "The size for the RDSH virtual machines",
+            "recommendedSizes": [
+              "Standard_A4_v2",
+              "Standard_D3_v2",
+              "Standard_NV6"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_A1",
+                "Standard_A2",
+                "Standard_A3",
+                "Standard_A4",
+                "Standard_A5",
+                "Standard_A6",
+                "Standard_A7",
+                "Standard_A1_v2",
+                "Standard_A2_v2",
+                "Standard_A4_v2",
+                "Standard_A8_v2",
+                "Standard_D1",
+                "Standard_D2",
+                "Standard_D3",
+                "Standard_D4",
+                "Standard_D5",
+                "Standard_D1_v2",
+                "Standard_D2_v2",
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D5_v2",
+                "Standard_NV6",
+                "Standard_NV12",
+                "Standard_NV24"
+              ]
+            },
+            "osPlatform" :"Windows",
+            "count": "[steps('rdshandVMSettings').numberOfRDSHInstances]",
+            "visible": true
+          },
+          {
+            "name": "rdInfraSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "RD infrastructure VM size",
+            "toolTip": "The size for the RD infra virtual machines (gateway and connection broker)",
+            "recommendedSizes": [
+              "Standard_A2",
+              "Standard_A1",
+              "Standard_A3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_A1",
+                "Standard_A2",
+                "Standard_A3",
+                "Standard_A4",
+                "Standard_A5",
+                "Standard_A6",
+                "Standard_A7",
+                "Standard_A1_v2",
+                "Standard_A2_v2",
+                "Standard_A4_v2",
+                "Standard_A8_v2",
+                "Standard_D1",
+                "Standard_D2",
+                "Standard_D3",
+                "Standard_D4",
+                "Standard_D5",
+                "Standard_D1_v2",
+                "Standard_D2_v2",
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D5_v2"
+              ]
+            },
+            "osPlatform": "Windows",
+            "count": "2",
+            "visible": true
+          },
+          {
+            "name": "adVmSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "AD VM size",
+            "toolTip": "The size for the AD virtual machine",
+            "recommendedSizes": [
+              "Standard_A1",
+              "Standard_A2",
+              "Standard_A3"
+            ],
+            "constraints": {
+              "allowedSizes": [
+                "Standard_A1",
+                "Standard_A2",
+                "Standard_A3",
+                "Standard_A4",
+                "Standard_A5",
+                "Standard_A6",
+                "Standard_A7",
+                "Standard_A1_v2",
+                "Standard_A2_v2",
+                "Standard_A4_v2",
+                "Standard_A8_v2",
+                "Standard_D1",
+                "Standard_D2",
+                "Standard_D3",
+                "Standard_D4",
+                "Standard_D5",
+                "Standard_D1_v2",
+                "Standard_D2_v2",
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D5_v2"
+              ]
+            },
+            "osPlatform": "Windows",
+            "count": "1",
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "gwdnsLabelPrefix": "[steps('domainAndNetworkSettings').dnsNameLabelPrefixCombo.domainNameLabel]",
+      "gwpublicIPAddressName": "[steps('domainAndNetworkSettings').dnsNameLabelPrefixCombo.name]",
+      "adDomainName": "[steps('domainAndNetworkSettings').adDomainName]",
+      "adminUsername": "[basics('username')]",
+      "adminPassword": "[basics('password').password]",
+      "imageSKU": "[steps('rdshandVMSettings').imageSKU]",
+      "numberOfRdshInstances": "[int(steps('rdshandVMSettings').numberOfRDSHInstances)]",
+      "rdshVmSize": "[steps('rdshandVMSettings').rdshVMSize]",
+      "rdInfraVmSize": "[steps('rdshandVMSettings').rdInfraSize]",
+      "adVmSize": "[steps('rdshandVMSettings').adVmSize]"
+    }
+  }
+}
