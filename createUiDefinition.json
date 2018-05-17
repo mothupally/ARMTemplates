@@ -97,9 +97,9 @@
           {
             "name": "vmImageVhdUri",
             "type": "Microsoft.Common.TextBox",
-            "label": "VM Image VHD URI",
+            "label": "VM Image URI",
             "defaultValue": "",
-            "toolTip": "URI for the template VHD to use for RDSH instances. For example, https://rdsstorage.blob.core.windows.net/vhds/MyWindowServerOSImage.vhd",
+            "toolTip": "URI for the VM image to use for RDSH instances. For example, https://rdsstorage.blob.core.windows.net/vhds/MyWindowServerOSImage.vhd",
             "constraints": {
               "required": true
             },
@@ -184,7 +184,7 @@
           {
             "name": "delegatedAdminUsername",
             "type": "Microsoft.Common.TextBox",
-            "label": "Delegated Admin Username",
+            "label": "Delegated Admin Tenant Username",
             "defaultValue": "",
             "toolTip": "Azure username who has delegated admin permissions to RDmi infra.",
             "constraints": {
@@ -207,7 +207,7 @@
           {
             "name": "hostPoolName",
             "type": "Microsoft.Common.TextBox",
-            "label": "Session Host Pool",
+            "label": "Session Host Pool Name",
             "defaultValue": "",
             "toolTip": "Name of the new or existing host pool into which RDSHs are to be created.",
             "constraints": {
@@ -218,9 +218,9 @@
           {
             "name": "initializeDBSecret",
             "type": "Microsoft.Common.TextBox",
-            "label": "Db Secret",
+            "label": "DB Secret",
             "defaultValue": "",
-            "toolTip": "Db secret from RDmi.",
+            "toolTip": "DB secret from RDmi.",
             "constraints": {
               "required": true
             },
