@@ -58,7 +58,8 @@
             "constraints": {
               "required": true
             },
-            "visible": true
+            "visible": true,
+            "osPlatform": "Windows"
           },
           {
             "name": "adVnetName",
@@ -200,7 +201,8 @@
             "constraints": {
               "required": true
             },
-            "visible": true
+            "visible": true,
+            "osPlatform": "Windows"
           },
           {
             "name": "hostPoolName",
