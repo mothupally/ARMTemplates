@@ -51,7 +51,7 @@
           },
           {
             "name": "adDomainAdminPassword",
-            "type": "Microsoft.Compute.CredentialsCombo",
+            "type": "Microsoft.Common.PasswordBox",
             "label": "AD Admin Password",
             "defaultValue": "",
             "toolTip":  "Admin Password of the existing domain in which Session Hosts are to be created.",
@@ -194,7 +194,7 @@
           },
           {
             "name": "delegatedAdminpassword",
-            "type": "Microsoft.Compute.CredentialsCombo",
+            "type": "Microsoft.Common.PasswordBox",
             "label": "Delegated Admin Password",
             "defaultValue": "",
             "toolTip": "Password of the delegated admin.",
