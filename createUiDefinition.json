@@ -4,35 +4,16 @@
   "parameters": {
     "basics": [
       {
-        "name": "username",
-        "type": "Microsoft.Compute.UserNameTextBox",
-        "label": "Admin username",
-        "toolTip": "Username for the local and domain administrator account",
+        "name": "tenantName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Existing Tenant Id",
+        "toolTip": "Id of the tenant in which Sessions Hosts are to be created",
         "osPlatform": "Windows",
         "visible": true,
         "constraints": {
           "required": true
         }
-      },
-      {
-        "name": "password",
-        "type": "Microsoft.Compute.CredentialsCombo",
-        "label": {
-          "password": "Admin Password",
-          "confirmPassword": "Confirm password"
-        },
-        "toolTip": {
-          "password": "Password for the local and domain administrator account"
-        },
-        "constraints": {
-          "required": true
-        },
-        "options": {
-          "hideConfirmation": false
-        },
-        "osPlatform": "Windows",
-        "visible": true
-        }
+      }
     ],
     "steps": [
       {
@@ -44,43 +25,60 @@
         },
         "bladeTitle": "Domain and network settings",
         "elements": [
-          {
-            "name": "dnsNameLabelPrefixCombo",
-            "type": "Microsoft.Network.PublicIpAddressCombo",
-            "label": {
-              "publicIpAddress": "Public IP address name",
-              "domainNameLabel": "DNS name label"
-            },
-            "toolTip":  {
-              "publicIpAddress": "An Azure resource that will save the properties of the created public IP address and DNS name",
-              "domainNameLabel": "A unique prefix used to check out a DNS name from Azure, in the form of <DNS name label>.<location>.cloudapp.azure.com . This DNS name is how you will connect to the RDS deployment over the Internet. You do not need to own any existing public DNS name."
-            },
-            "defaultValue": {
-              "publicIpAddressName": "gwpip",
-              "domainNameLabel": ""
-            },
-            "constraints": {
-              "required": {
-               "domainNameLabel": true
-              }
-            },
-            "options": {
-              "hideNone": true,
-              "hideDomainNameLabel": false,
-              "hideExisting": true
-            },
-            "visible": true
-          },
            {
             "name": "adDomainName",
             "type": "Microsoft.Common.TextBox",
             "label": "AD domain name",
             "defaultValue": "contoso.com",
-            "toolTip":  "The name of the domain to be created on the private network, such as 'contoso.com'. You do not need to own any existing domain.",
+            "toolTip":  "Name of the existing domain in which Session Hosts are to be created.",
             "constraints": {
               "required": true,
               "regex": "^(?=.{3,15}$)([a-z0-9]+\\.)?([a-z0-9][a-z0-9-]*\\.)+[a-z]{2,6}$",
               "validationMessage": "The domain name must satisfy NETBIOS requirements, so the recommendation is for a short test domain name (under 15 characters) such as contoso.com . Otherwise, the domain name can be up to 63 characters, contain lowercase alphanumeric characters and hypens, and end with a top level domain (such as .com, .net). "
+            },
+            "visible": true
+          },
+          {
+            "name": "adDomainAdmin",
+            "type": "Microsoft.Common.TextBox",
+            "label": "AD Admin Username",
+            "defaultValue": "",
+            "toolTip":  "Admin username of the existing domain in which Session Hosts are to be created.",
+            "constraints": {
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "adDomainAdminPassword",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": "AD Admin Password",
+            "defaultValue": "",
+            "toolTip":  "Admin Password of the existing domain in which Session Hosts are to be created.",
+            "constraints": {
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "adVnetName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Existing Virtual Network Name",
+            "defaultValue": "",
+            "toolTip":  "Name of the existing virtual network in which Session Hosts are to be created.",
+            "constraints": {
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "adSubnetName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Existing Subnet Name",
+            "defaultValue": "",
+            "toolTip":  "Name of the existing sub network in which Session Hosts are to be created.",
+            "constraints": {
+              "required": true
             },
             "visible": true
           }
@@ -96,23 +94,15 @@
         "bladeTitle": "RDSH and VM settings",
         "elements": [
           {
-            "name": "imageSKU",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Windows Server image SKU",
-            "defaultValue": "Windows Server 2016 Datacenter",
-            "toolTip": "The operating system disk image for the virtual machines in the deployment",
+            "name": "vmImageVhdUri",
+            "type": "Microsoft.Common.TextBox",
+            "label": "VM Image VHD URI",
+            "defaultValue": "",
+            "toolTip": "URI for the template VHD to use for RDSH instances. For example, https://rdsstorage.blob.core.windows.net/vhds/MyWindowServerOSImage.vhd",
             "constraints": {
-              "allowedValues": [
-                {
-                  "label": "Windows Server 2012 R2 Datacenter",
-                  "value": "2012-R2-Datacenter"
-                },
-                {
-                  "label": "Windows Server 2016 Datacenter",
-                  "value": "2016-Datacenter"
-                }
-              ]
-            }
+              "required": true
+            },
+            "visible": true
           },
           {
             "name": "numberOfRDSHInstances",
@@ -121,8 +111,10 @@
             "defaultValue": "2",
             "toolTip": "The number of RDSH instances for the deployment",
             "constraints": {
-              "regex": "^[1-9][0-9]*$"
-            }
+              "regex": "^[1-9][0-9]*$",
+              "required": true
+            },
+            "visible": true
           },
           {
             "name": "rdshVMSize",
@@ -165,99 +157,91 @@
             "osPlatform" :"Windows",
             "count": "[steps('rdshandVMSettings').numberOfRDSHInstances]",
             "visible": true
-          },
+          }
+        ]
+      },
+      {
+        "name": "rdmiHosterSettings",
+        "label": "Rdmi Hoster settings",
+        "subLabel": {
+          "preValidation": "Configure RDmi Hoster settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "RDmi Hoster Settings",
+        "elements": [
           {
-            "name": "rdInfraSize",
-            "type": "Microsoft.Compute.SizeSelector",
-            "label": "RD infrastructure VM size",
-            "toolTip": "The size for the RD infra virtual machines (gateway and connection broker)",
-            "recommendedSizes": [
-              "Standard_A2",
-              "Standard_A1",
-              "Standard_A3"
-            ],
+            "name": "rdBrokerUrl",
+            "type": "Microsoft.Common.TextBox",
+            "label": "RD Broker URL",
+            "defaultValue": "",
+            "toolTip": "The URL of RD Broker with which RDSH has to be registered.",
             "constraints": {
-              "allowedSizes": [
-                "Standard_A1",
-                "Standard_A2",
-                "Standard_A3",
-                "Standard_A4",
-                "Standard_A5",
-                "Standard_A6",
-                "Standard_A7",
-                "Standard_A1_v2",
-                "Standard_A2_v2",
-                "Standard_A4_v2",
-                "Standard_A8_v2",
-                "Standard_D1",
-                "Standard_D2",
-                "Standard_D3",
-                "Standard_D4",
-                "Standard_D5",
-                "Standard_D1_v2",
-                "Standard_D2_v2",
-                "Standard_D3_v2",
-                "Standard_D4_v2",
-                "Standard_D5_v2"
-              ]
+              "required": true
             },
-            "osPlatform": "Windows",
-            "count": "2",
             "visible": true
           },
           {
-            "name": "adVmSize",
-            "type": "Microsoft.Compute.SizeSelector",
-            "label": "AD VM size",
-            "toolTip": "The size for the AD virtual machine",
-            "recommendedSizes": [
-              "Standard_A1",
-              "Standard_A2",
-              "Standard_A3"
-            ],
+            "name": "delegatedAdminUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Delegated Admin Username",
+            "defaultValue": "",
+            "toolTip": "Azure username who has delegated admin permissions to RDmi infra.",
             "constraints": {
-              "allowedSizes": [
-                "Standard_A1",
-                "Standard_A2",
-                "Standard_A3",
-                "Standard_A4",
-                "Standard_A5",
-                "Standard_A6",
-                "Standard_A7",
-                "Standard_A1_v2",
-                "Standard_A2_v2",
-                "Standard_A4_v2",
-                "Standard_A8_v2",
-                "Standard_D1",
-                "Standard_D2",
-                "Standard_D3",
-                "Standard_D4",
-                "Standard_D5",
-                "Standard_D1_v2",
-                "Standard_D2_v2",
-                "Standard_D3_v2",
-                "Standard_D4_v2",
-                "Standard_D5_v2"
-              ]
+              "required": true
             },
-            "osPlatform": "Windows",
-            "count": "1",
+            "visible": true
+          },
+          {
+            "name": "delegatedAdminpassword",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": "Delegated Admin Password",
+            "defaultValue": "",
+            "toolTip": "Password of the delegated admin.",
+            "constraints": {
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "hostPoolName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Session Host Pool",
+            "defaultValue": "",
+            "toolTip": "Name of the new or existing host pool into which RDSHs are to be created.",
+            "constraints": {
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "initializeDBSecret",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Db Secret",
+            "defaultValue": "",
+            "toolTip": "Db secret from RDmi.",
+            "constraints": {
+              "required": true
+            },
             "visible": true
           }
         ]
       }
     ],
     "outputs": {
-      "gwdnsLabelPrefix": "[steps('domainAndNetworkSettings').dnsNameLabelPrefixCombo.domainNameLabel]",
-      "gwpublicIPAddressName": "[steps('domainAndNetworkSettings').dnsNameLabelPrefixCombo.name]",
-      "adDomainName": "[steps('domainAndNetworkSettings').adDomainName]",
-      "adminUsername": "[basics('username')]",
-      "adminPassword": "[basics('password').password]",
-      "imageSKU": "[steps('rdshandVMSettings').imageSKU]",
-      "numberOfRdshInstances": "[int(steps('rdshandVMSettings').numberOfRDSHInstances)]",
+      "VmImageVhdUri": "[steps('rdshandVMSettings').vmImageVhdUri]",
+      "rdshNumberOfInstances": "[int(steps('rdshandVMSettings').numberOfRDSHInstances)]",
       "rdshVmSize": "[steps('rdshandVMSettings').rdshVMSize]",
-      "rdInfraVmSize": "[steps('rdshandVMSettings').rdInfraSize]",
-      "adVmSize": "[steps('rdshandVMSettings').adVmSize]"
+      "existingDomainName": "[steps('domainAndNetworkSettings').adDomainName]",
+      "existingDomainAdminUsername": "[steps('domainAndNetworkSettings').adDomainAdmin]",
+      "existingDomainAdminPassword": "[steps('domainAndNetworkSettings').adDomainAdminPassword]",
+      "existingVnetName": "[steps('domainAndNetworkSettings').adVnetName]",
+      "existingSubnetName": "[steps('domainAndNetworkSettings').adSubnetName]",
+      "RDBrokerURL": "[steps('rdmiHosterSettings').rdBrokerUrl]",
+      "ExistingTenantName": "[steps('domainAndNetworkSettings').tenantName]",
+      "HostPoolName": "[steps('rdmiHosterSettings').hostPoolName]",
+      "InitializeDBSecret": "[steps('rdmiHosterSettings').initializeDBSecret]",
+      "DelegatedAdminUsername": "[steps('rdmiHosterSettings').delegatedAdminUsername]",
+      "DelegatedAdminPassword": "[steps('rdmiHosterSettings').delegatedAdminpassword]"
     }
   }
 }
