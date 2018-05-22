@@ -28,7 +28,7 @@
            {
             "name": "existingDomainName",
             "type": "Microsoft.Common.TextBox",
-            "label": "Existing Domain name",
+            "label": "Existing Domain Name",
             "defaultValue": "contoso.com",
             "toolTip":  "Name of the existing domain in which Session Hosts are to be created.",
             "constraints": {
