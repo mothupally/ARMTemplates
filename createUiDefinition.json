@@ -26,9 +26,9 @@
         "bladeTitle": "Domain and network settings",
         "elements": [
            {
-            "name": "adDomainName",
+            "name": "existingDomainName",
             "type": "Microsoft.Common.TextBox",
-            "label": "AD domain name",
+            "label": "Existing Domain name",
             "defaultValue": "contoso.com",
             "toolTip":  "Name of the existing domain in which Session Hosts are to be created.",
             "constraints": {
@@ -39,20 +39,20 @@
             "visible": true
           },
           {
-            "name": "adDomainAdmin",
+            "name": "existingDomainUsername",
             "type": "Microsoft.Common.TextBox",
-            "label": "AD Admin Username",
+            "label": "Existing Domain Username",
             "defaultValue": "",
-            "toolTip":  "Admin username of the existing domain in which Session Hosts are to be created.",
+            "toolTip":  "This account must have privileges to join computers to the domain.",
             "constraints": {
               "required": true
             },
             "visible": true
           },
           {
-            "name": "adDomainAdminPassword",
+            "name": "existingDomainPassword",
             "type": "Microsoft.Common.PasswordBox",
-            "label": "AD Admin Password",
+            "label": "Existing Domain Password",
             "defaultValue": "",
             "toolTip":  "Admin Password of the existing domain in which Session Hosts are to be created.",
             "constraints": {
@@ -233,9 +233,9 @@
       "VmImageVhdUri": "[steps('rdshandVMSettings').vmImageVhdUri]",
       "rdshNumberOfInstances": "[int(steps('rdshandVMSettings').numberOfRDSHInstances)]",
       "rdshVmSize": "[steps('rdshandVMSettings').rdshVMSize]",
-      "existingDomainName": "[steps('domainAndNetworkSettings').adDomainName]",
-      "existingDomainAdminUsername": "[steps('domainAndNetworkSettings').adDomainAdmin]",
-      "existingDomainAdminPassword": "[steps('domainAndNetworkSettings').adDomainAdminPassword]",
+      "existingDomainName": "[steps('domainAndNetworkSettings').existingDomainName]",
+      "existingDomainUsername": "[steps('domainAndNetworkSettings').existingDomainUsername]",
+      "existingDomainPassword": "[steps('domainAndNetworkSettings').existingDomainPassword]",
       "existingVnetName": "[steps('domainAndNetworkSettings').adVnetName]",
       "existingSubnetName": "[steps('domainAndNetworkSettings').adSubnetName]",
       "RDBrokerURL": "[steps('rdmiHosterSettings').rdBrokerUrl]",
